@@ -33,15 +33,20 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json()
 
     if (tokenData.error) {
-      return res.status(400).json({ error: tokenData.error_description || tokenData.error })
+      return res.status(400).json({ 
+        error: tokenData.error_description || tokenData.error,
+        debug_client_id: CLIENT_ID ? 'set' : 'MISSING',
+        debug_secret: CLIENT_SECRET ? 'set' : 'MISSING',
+        debug_redirect: REDIRECT_URI,
+      })
     }
 
     return res.status(200).json({
       access_token: tokenData.access_token,
       token_type: tokenData.token_type,
       expires_in: tokenData.expires_in,
+      debug_has_token: !!tokenData.access_token,
     })
   } catch (err) {
     return res.status(500).json({ error: 'Token exchange failed', detail: err.message })
   }
-}
