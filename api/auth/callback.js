@@ -1,0 +1,45 @@
+// GET /api/auth/callback?code=...
+// Exchanges Discord OAuth code for access token
+import { setCors } from './_supabase.js'
+
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET
+const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'https://ryoblox.vercel.app/dashboard'
+
+export default async function handler(req, res) {
+  setCors(res)
+  if (req.method === 'OPTIONS') return res.status(200).end()
+
+  const { code } = req.query
+  if (!code) return res.status(400).json({ error: 'Missing code' })
+
+  try {
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT_URI,
+    })
+
+    const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    })
+
+    const tokenData = await tokenRes.json()
+
+    if (tokenData.error) {
+      return res.status(400).json({ error: tokenData.error_description || tokenData.error })
+    }
+
+    return res.status(200).json({
+      access_token: tokenData.access_token,
+      token_type: tokenData.token_type,
+      expires_in: tokenData.expires_in,
+    })
+  } catch (err) {
+    return res.status(500).json({ error: 'Token exchange failed', detail: err.message })
+  }
+}
