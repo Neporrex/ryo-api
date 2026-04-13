@@ -2,6 +2,7 @@
   "name": "ryoblox-api",
   "version": "1.0.0",
   "description": "Ryoblox Analytics API — Vercel Serverless Functions",
+  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4"
   }
