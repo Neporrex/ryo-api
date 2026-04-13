@@ -1,10 +1,12 @@
-// GET /api/auth/callback?code=...
-// Exchanges Discord OAuth code for access token
-import { setCors } from './_supabase.js'
-
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'https://ryoblox.vercel.app/dashboard'
+
+function setCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://ryoblox.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+}
 
 export default async function handler(req, res) {
   setCors(res)
